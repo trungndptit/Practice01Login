@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Practice01Login</string>
+    <string name="enter_your_username">Enter your username</string>
+    <string name="enter_your_password">Enter your password</string>
+
+    <string name="login">Login</string>
+    <string name="message_empty">Error: This field not allowed empty</string>
+
+
+</resources>

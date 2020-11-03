@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <!-- NOTE: order is important (the first matching state(s) is what is rendered) -->
+    <item android:drawable="@drawable/ic_blue_eye" android:state_activated="false" tools:ignore="StateListReachable" />
+
+    <item android:drawable="@drawable/ic_eye" android:state_activated="true" />
+
+    <item android:drawable="@drawable/ic_blue_eye"/>
+
+</selector>
