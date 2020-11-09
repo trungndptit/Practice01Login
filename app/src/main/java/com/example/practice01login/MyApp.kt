@@ -1,16 +1,24 @@
 package com.example.practice01login
 
-import android.app.Application
 import android.content.Context
+import com.example.practice01login.di.DaggerAppComponent
+import dagger.android.AndroidInjector
+import dagger.android.support.DaggerApplication
 
-class MyApp : Application() {
+class MyApp : DaggerApplication() {
 
     override fun onCreate() {
         instance = this
         super.onCreate()
     }
 
-    companion object{
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
+        DaggerAppComponent.builder()
+            .application(this)
+            .build()
+
+
+    companion object {
         private var instance: MyApp? = null
 
         fun getInstance(): MyApp? {

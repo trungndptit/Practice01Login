@@ -1,6 +1,5 @@
 package com.example.practice01login.repository
 
-import android.content.Context
 import androidx.preference.PreferenceManager
 import com.example.practice01login.MyApp
 import com.example.practice01login.api.AppService
@@ -8,6 +7,7 @@ import com.example.practice01login.api.LoginRequestInfo
 import com.example.practice01login.api.LoginResponse
 import com.example.practice01login.db.UserDao
 import com.example.practice01login.db.UserEntity
+import io.reactivex.Observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -48,6 +48,21 @@ class LoginRepo(private val appService: AppService, private var userDao: UserDao
             }
 
         })
+    }
+
+    fun doLoginRx(loginRequestInfo: LoginRequestInfo) : Observable<LoginResponse>{
+
+        return appService.doLoginRx(loginRequestInfo)
+            .doAfterNext { response ->
+                val sharedPreferences =
+                    PreferenceManager.getDefaultSharedPreferences(MyApp.getContext()).edit()
+                sharedPreferences.putString(XACC_STRING, response.headers().get("X-Acc"))
+                sharedPreferences.apply()
+            }
+            .map { response ->
+            LoginResponse(response.body()!!.errorCode, response.body()!!.errorMessage,
+                response.headers().get("X-Acc")!!, response.body()!!.user)
+        }
     }
 
     fun saveUser(userEntity: UserEntity) {
