@@ -6,5 +6,7 @@
     <string name="login">Login</string>
     <string name="message_empty">Error: This field not allowed empty</string>
 
+    <string name="facebook_app_id">2453740018263221</string>
+    <string name="fb_login_protocol_scheme">fb2453740018263221</string>
 
 </resources>

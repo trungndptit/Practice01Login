@@ -1,23 +1,25 @@
 package com.example.practice01login.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
 import com.example.practice01login.MyApp
 import com.example.practice01login.R
 import com.example.practice01login.api.AppService
 import com.example.practice01login.api.LoginRequestInfo
-import com.example.practice01login.db.UserDao
 import com.example.practice01login.db.UserDatabase
 import com.example.practice01login.db.UserEntity
 import com.example.practice01login.repository.LoginRepo
 import com.example.practice01login.viewmodel.LoginViewModel
-import dagger.android.AndroidInjection
+import com.facebook.*
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
@@ -26,11 +28,15 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private val loginViewModel by viewModels<LoginViewModel>()
 
-    @Inject
-    lateinit var appService : AppService
+    lateinit var callbackManager: CallbackManager
 
     @Inject
-    lateinit var context : MyApp
+    lateinit var appService: AppService
+
+    @Inject
+    lateinit var context: MyApp
+
+    private val EMAIL = "email"
 
 //    @Inject
 //    lateinit var userDao : UserDatabase
@@ -38,6 +44,8 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 //        AndroidInjection.inject(this)  // Dagger biết cái activity này đc binding
         super.onCreate(savedInstanceState)
+//        FacebookSdk.sdkInitialize(applicationContext);
+        callbackManager = CallbackManager.Factory.create();
         setContentView(R.layout.activity_main)
         setupViewModels()
         setupInputKeyboard()
@@ -95,13 +103,39 @@ class MainActivity : DaggerAppCompatActivity() {
                 loginViewModel.doLoginRx(login)
                 showProgressBar()
             }
-
         }
+
+
+        LoginManager.getInstance().logInWithReadPermissions(this, listOf("public_profile", "email"))
+        LoginManager.getInstance()
+            .registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+                override fun onSuccess(result: LoginResult?) {
+                    var profile: Profile = Profile.getCurrentProfile()
+                    println("Debug login fb token ${result?.accessToken?.token} and ${result?.accessToken?.userId}" +
+                            " and name ${profile.name} and uri ${profile.getProfilePictureUri(200,200)}")
+                }
+
+                override fun onCancel() {
+                    println("Debug login fb onCancel")
+                }
+
+                override fun onError(error: FacebookException?) {
+                    println("Debug login fb onError ${error.toString()}")
+                }
+
+            })
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        callbackManager?.onActivityResult(requestCode, resultCode, data)
+        super.onActivityResult(requestCode, resultCode, data)
+        println("Debug login fb onActivityResult $data")
     }
 
     private fun setupViewModels() {
 //        val service = AppService.instance
-        println("Debug context $context" )
+        println("Debug context $context")
         Toast.makeText(context, "init context ", Toast.LENGTH_SHORT).show()
 
         val db = UserDatabase.getInstance(this)
