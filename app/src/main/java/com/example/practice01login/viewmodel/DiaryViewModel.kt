@@ -7,7 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import com.example.practice01login.SingleLiveEvent
 import com.example.practice01login.adapter.Common
 import com.example.practice01login.api.DiaryResponse
-import com.example.practice01login.repository.AppRepo
+import com.example.practice01login.db.DiaryEntity
+import com.example.practice01login.repository.DiaryRepo
 import com.example.practice01login.utils.DateUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -17,16 +18,20 @@ import java.net.UnknownHostException
 import java.util.*
 
 class DiaryViewModel(application: Application) : AndroidViewModel(application) {
-    var appRepo: AppRepo? = null
+    var diaryRepo: DiaryRepo? = null
     var compositeDisposable = CompositeDisposable()
 
-    private var diary: MutableLiveData<List<DiaryResponse>>? = MutableLiveData()
+    private var diary: MutableLiveData<List<DiaryEntity>>? = null
 
     private val noInternetConnectionEvent = SingleLiveEvent<Unit>()
     private val connectTimeoutEvent = SingleLiveEvent<Unit>()
 
+    fun loadDiary() {
+
+    }
+
     fun getListDiary() {
-        val repo = appRepo ?: return
+        val repo = diaryRepo ?: return
 
         val disposable = repo.getListDiary()
 //            .doOnError { error: Throwable -> println("Debug The error message is: " + error.message) }
@@ -68,8 +73,12 @@ class DiaryViewModel(application: Application) : AndroidViewModel(application) {
 
                 }
 
+                for (diary in listDiary) {
+                    insertOrUpdateDiary(diary)
+                }
+
                 listDiary.forEach { println("Debug log id= ${it.id} title= ${it.title} date= ${it.date}") }
-                diary!!.value = listDiary
+//                diary!!.value = 00
 //                listDates.sortByDescending(compareBy<Date> { it.year }.thenBy { it.month }.thenBy { it.day })
             }, {
                 onLoadFail(it)
@@ -78,8 +87,36 @@ class DiaryViewModel(application: Application) : AndroidViewModel(application) {
         compositeDisposable.add(disposable)
     }
 
-    fun getDiary(): LiveData<List<DiaryResponse>>? {
+    fun getDiary(): MutableLiveData<List<DiaryEntity>>?{
         return this.diary
+    }
+
+    fun getAllDiaryInDb() {
+        val repo = diaryRepo ?: return
+        val disposable = repo.getAllDiaries()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ listDiary ->
+                diary?.value = listDiary
+            }, {t: Throwable? ->
+                println("Debug throwable in getAllDiaryInDb ${t.toString()}")
+            })
+
+        compositeDisposable.add(disposable)
+    }
+
+    private fun insertOrUpdateDiary(diaryResponse: DiaryResponse) {
+        val repo = diaryRepo ?: return
+
+        val disposable = repo.insertOrUpdateDiary(diaryResponse)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ ->
+                println("Debug insertOrUpdateDiary")
+            }, { t: Throwable? ->
+                println("Debug throwable in diary view model ${t.toString()}")
+            })
+        compositeDisposable.add(disposable)
     }
 
     open fun onLoadFail(throwable: Throwable) {

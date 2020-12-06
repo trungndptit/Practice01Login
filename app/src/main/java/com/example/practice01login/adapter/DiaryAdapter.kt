@@ -6,11 +6,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.practice01login.R
 import com.example.practice01login.api.DiaryResponse
+import com.example.practice01login.db.DiaryEntity
 import kotlinx.android.synthetic.main.layout_group.view.*
 import kotlinx.android.synthetic.main.layout_item_diary.view.*
 
 
-class DiaryAdapter : BaseRecyclerViewAdapter<DiaryResponse, RecyclerView.ViewHolder>() {
+class DiaryAdapter : BaseRecyclerViewAdapter<DiaryEntity, RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         when (viewType) {
@@ -48,8 +49,16 @@ class DiaryAdapter : BaseRecyclerViewAdapter<DiaryResponse, RecyclerView.ViewHol
         }
     }
 
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        super.onBindViewHolder(holder, position, payloads)
+    }
+
     class GroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(diary: DiaryResponse) {
+        fun bind(diary: DiaryEntity) {
             itemView.tv_group_date.text = diary.date
             itemView.tv_group_title.text = diary.title
             itemView.tv_group_content.text = diary.content
@@ -58,7 +67,7 @@ class DiaryAdapter : BaseRecyclerViewAdapter<DiaryResponse, RecyclerView.ViewHol
     }
 
     class DiaryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(diary: DiaryResponse) {
+        fun bind(diary: DiaryEntity) {
             itemView.tv_diary_title.text = diary.title
             itemView.tv_diary_content.text = diary.content
         }

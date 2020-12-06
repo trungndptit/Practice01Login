@@ -15,8 +15,6 @@ class AppRepo(private val appService: AppService, private var userDao: UserDao) 
         const val XACC_STRING = "xAcc-Code"
     }
 
-    fun getListDiary() : Observable<List<DiaryResponse>> = appService.getListDiaryRx()
-
 //    fun doLogin(
 //        loginRequestInfo: LoginRequestInfo,
 //        callback: (LoginResponse?, String?) -> Unit
